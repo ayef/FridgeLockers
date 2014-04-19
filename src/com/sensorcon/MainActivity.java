@@ -4,15 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.sensorcon.sensordrone.DroneEventHandler;
 import com.sensorcon.sensordrone.DroneEventObject;
 import com.sensorcon.sensordrone.android.Drone;
-import com.sensorcon.sensordrone.android.tools.DroneConnectionHelper;
 
 public class MainActivity extends Activity {
 
@@ -27,6 +28,15 @@ public class MainActivity extends Activity {
     Drone myDrone;
     DroneEventHandler myDroneEventHandler;
  //   DroneConnectionHelper myHelper;
+    
+    /** Called when the user clicks the Settings button 
+     * Author: Ayesha Ahmad
+     * */
+    public void startSettings(View view) {
+    	Intent intent = new Intent(this, SettingsActivity.class);
+    	startActivity(intent);
+    	
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,24 +144,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // This button will take a Temperature measurement when pressed
-        btnMeasure = (Button)findViewById(R.id.main_btn_measure);
-        btnMeasure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (myDrone.isConnected) {
-                    myDrone.measureTemperature();
-                }
-                else if (myDrone.isConnected && !myDrone.temperatureStatus) {
-                    // If the sensor isn't enabled, tell the user
-                    genericDialog("Whoa!","The temperature sensor hasn't been enabled!");
-                }
-                else {
-                    // If we weren't connected, tell the user
-                    genericDialog("Whoa!","You are not currently connected to a Sensordrone");
-                }
-            }
-        });
 
         // The events triggered are run through a DroneEventHandler.
         // This is where the magic happens :-)

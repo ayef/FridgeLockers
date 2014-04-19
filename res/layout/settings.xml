@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+        >
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You are not being Monitored"
+            android:id="@+id/main_tv_label" android:layout_centerHorizontal="true" android:layout_alignParentTop="true"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:id="@+id/main_tv_temperature" android:layout_centerHorizontal="true"
+            android:layout_below="@+id/main_tv_label"/>
+
+    <Button
+        android:id="@+id/main_btn_measure"
+        android:layout_width="216dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="Measure Temperature" 
+        />
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Not Connected"
+            android:id="@+id/main_tv_connection_status"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/main_tv_connection_status_label"
+            />
+</RelativeLayout>
+
