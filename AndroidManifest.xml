@@ -29,6 +29,16 @@
             android:label="@string/title_activity_settings" 
             android:screenOrientation="portrait" >
         </activity>
-    </application>
+        <activity
+            android:name="com.sensorcon.ReadingsActivity"
+            android:label="@string/title_activity_readings" 
+            android:screenOrientation="portrait" >
+        </activity>
+                <activity
+            android:name="com.sensorcon.StatisticsActivity"
+            android:label="@string/title_activity_statistics" 
+            android:screenOrientation="portrait" >
+        </activity>
+        </application>
 
 </manifest>

@@ -9,12 +9,6 @@
             android:layout_height="wrap_content"
             android:text="You are not being Monitored"
             android:id="@+id/main_tv_label" android:layout_centerHorizontal="true" android:layout_alignParentTop="true"/>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="N/A"
-            android:id="@+id/main_tv_temperature" android:layout_centerHorizontal="true"
-            android:layout_below="@+id/main_tv_label"/>
 
     <Button
         android:id="@+id/main_btn_measure"
@@ -23,7 +17,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="Settings" 
-        android:onClick="startSettings"
+        android:onClick="viewSettings"
         />
 
     <Button
@@ -32,7 +26,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/main_btn_measure"
         android:layout_centerHorizontal="true"
-        android:text="View Readings" />
+        android:text="View Readings" 
+        android:onClick="viewReadings"
+        />
 
     <Button
         android:id="@+id/main_btn_disconnect"
@@ -40,7 +36,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/main_btn_connect"
         android:layout_centerHorizontal="true"
-        android:text="View Statistics" />
+        android:text="View Statistics" 
+        android:onClick="viewStatistics"
+        />
     
     <Button
         android:id="@+id/main_btn_monitoring"
