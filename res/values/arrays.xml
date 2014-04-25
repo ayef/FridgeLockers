@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="pref_bannedTimeStart_entries">  
+        <item>17</item>  
+        <item>18</item>  
+        <item>19</item>  
+        <item>20</item>  
+        <item>21</item>  
+   </string-array>    
+	
+	<string-array name="pref_bannedTimeStart_values">  
+        <item>17</item>  
+        <item>18</item>  
+        <item>19</item>  
+        <item>20</item>  
+        <item>21</item>  
+   </string-array>    
+
+	<string-array name="pref_bannedTimeEnd_entries">  
+        <item>5</item>  
+        <item>6</item>  
+        <item>7</item>  
+        <item>8</item>  
+        <item>9</item>  
+   </string-array>    
+	
+	<string-array name="pref_bannedTimeEnd_values">  
+        <item>5</item>  
+        <item>6</item>  
+        <item>7</item>  
+        <item>8</item>  
+        <item>9</item>  
+   </string-array>    
+
+	<string-array name="pref_snsrdrnPollInterval_entries">  
+        <item>5</item>  
+        <item>10</item>  
+   </string-array>       
+
+	<string-array name="pref_snsrdrnPollInterval_values">  
+        <item>5</item>  
+        <item>10</item>  
+   </string-array>    
+</resources>

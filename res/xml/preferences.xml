@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	    <CheckBoxPreference
+	        android:key="pref_alarm"
+	        android:title="@string/pref_alarm"
+	        android:defaultValue="true" />
+	    <CheckBoxPreference
+	        android:key="pref_tweet"
+	        android:title="@string/pref_tweet"
+	        android:defaultValue="true" />
+	    <CheckBoxPreference
+	        android:key="pref_postFB"
+	        android:title="@string/pref_postFB"
+	        android:defaultValue="true" />
+	    <CheckBoxPreference
+	        android:key="pref_collectStats"
+	        android:title="@string/pref_collectStats"
+	        android:defaultValue="true" />
+	    <com.sensorcon.ListPreferenceShowSummary
+	        android:key="pref_bannedTimeStart"
+	        android:title="@string/pref_bannedTimeStart"
+	        android:dialogTitle="@string/pref_bannedTimeStart"
+	        android:entries="@array/pref_bannedTimeStart_entries"
+	        android:entryValues="@array/pref_bannedTimeStart_values"
+	        android:defaultValue="@string/pref_bannedTimeStart_default" />
+	    <com.sensorcon.ListPreferenceShowSummary
+	        android:key="pref_bannedTimeEnd"
+	        android:title="@string/pref_bannedTimeEnd"
+	        android:dialogTitle="@string/pref_bannedTimeEnd"
+	        android:entries="@array/pref_bannedTimeEnd_entries"
+	        android:entryValues="@array/pref_bannedTimeEnd_values"
+	        android:defaultValue="@string/pref_bannedTimeEnd_default" />
+	    <com.sensorcon.ListPreferenceShowSummary
+	        android:key="pref_snsrdrnPollInterval"
+	        android:title="@string/pref_snsrdrnPollInterval"
+	        android:dialogTitle="@string/pref_snsrdrnPollInterval"
+	        android:entries="@array/pref_snsrdrnPollInterval_entries"
+	        android:entryValues="@array/pref_snsrdrnPollInterval_values"
+	        android:defaultValue="@string/pref_snsrdrnPollInterval_default" />
+</PreferenceScreen>

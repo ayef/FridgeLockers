@@ -34,11 +34,17 @@
             android:label="@string/title_activity_readings" 
             android:screenOrientation="portrait" >
         </activity>
-                <activity
+        <activity
             android:name="com.sensorcon.StatisticsActivity"
             android:label="@string/title_activity_statistics" 
             android:screenOrientation="portrait" >
         </activity>
+	    <service android:enabled="true"
+	             android:exported="false"
+	             android:isolatedProcess="false"
+	             android:label="FridgeLocker Service Label"
+	             android:name=".SensorDronePollingService">
+	    </service>
         </application>
 
 </manifest>

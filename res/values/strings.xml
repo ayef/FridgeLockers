@@ -5,5 +5,20 @@
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_statistics">Statistics</string>
     <string name="title_activity_readings">Readings</string>
+    <string name="pref_storage_title">Storage</string>
+
+    <string name="pref_alarm">Use Alarm</string>
+    <string name="pref_tweet">Tweet</string>
+        <string name="pref_postFB">Post on Facebook</string>
+        <string name="pref_collectStats">Collect Stats</string>
+        
+    <string name="pref_bannedTimeStart">Set Ban Start Time</string>
+    <string name="pref_bannedTimeStart_default">19</string>
+
+    <string name="pref_bannedTimeEnd">Set Ban End Time</string>
+    <string name="pref_bannedTimeEnd_default">7</string>
+    
+    <string name="pref_snsrdrnPollInterval">Set Polling Interval in Seconds</string>
+    <string name="pref_snsrdrnPollInterval_default">5</string>
     
 </resources>
