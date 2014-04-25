@@ -46,7 +46,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/main_btn_disconnect"
         android:layout_centerHorizontal="true"
-        android:text="Start/Stop Monitoring" />
+        android:text="Start/Stop Monitoring" 
+        android:onClick="StartOrStopMonitoring"
+        />
     
     <TextView
             android:layout_width="wrap_content"

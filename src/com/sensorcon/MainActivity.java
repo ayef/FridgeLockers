@@ -23,11 +23,11 @@ public class MainActivity extends Activity {
     Button btnMeasure;
     TextView tvStatus;
     TextView tvTemperature;
+    int toggleService = 0;
 
     // Sensordrone Objects
     Drone myDrone;
     DroneEventHandler myDroneEventHandler;
- //   DroneConnectionHelper myHelper;
     
     /** Called when the user clicks the Settings button
      * Opens the Settings Activity */
@@ -53,7 +53,29 @@ public class MainActivity extends Activity {
     	startActivity(intent);
     	
     }
+ // Method to start the service
+    public void startService() {
+    	toggleService = 1;
+    	SensorDronePollingService.setMainActivity(this);
+       startService(new Intent(getBaseContext(), SensorDronePollingService.class));
+    }
 
+    // Method to stop the service
+    public void stopService() {
+    	toggleService = 0;
+    	uiToast(SensorDronePollingService.globalString);
+       stopService(new Intent(getBaseContext(), SensorDronePollingService.class));
+    }
+
+    // Starts or stops the service
+    public void StartOrStopMonitoring (View view) {
+    	if(SensorDronePollingService.isInstanceCreated()) {
+    		stopService();
+    	}
+    	else {
+    		startService();
+    	}
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +83,6 @@ public class MainActivity extends Activity {
 
         // Set up our Sensordrone object
         myDrone = new Drone();
-
         myDrone.btConnect("00:17:EC:11:C0:0F");
         
     
