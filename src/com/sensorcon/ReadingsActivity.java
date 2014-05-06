@@ -38,6 +38,7 @@ public class ReadingsActivity extends Activity {
         updateTextViewFromUI(tvStatus, "Connected");
         myDrone.enableTemperature();
         myDrone.enableHumidity();
+        myDrone.enableRGBC();
 
      // This button will take a Temperature measurement when pressed
         btnMeasure = (Button)findViewById(R.id.main_btn_refresh);
@@ -47,6 +48,7 @@ public class ReadingsActivity extends Activity {
                 if (myDrone.isConnected) {
                 	myDrone.measureHumidity();
                     myDrone.measureTemperature();
+                    myDrone.measureRGBC();
                 }
                 else if (myDrone.isConnected && !myDrone.temperatureStatus) {
                     // If the sensor isn't enabled, tell the user
@@ -92,6 +94,7 @@ public class ReadingsActivity extends Activity {
                     // temperature sensor here at every connect. Now the user won't have to worry about it.
                     myDrone.enableTemperature();
                     myDrone.enableHumidity();
+                    myDrone.enableRGBC();
                 }
                 else if (droneEventObject.matches(DroneEventObject.droneEventType.DISCONNECTED)) {
                     // This is triggered when the disconnect method is called.
@@ -114,6 +117,7 @@ public class ReadingsActivity extends Activity {
                     // This is triggered when the temperature has been enabled
                 	myDrone.measureHumidity();
                 	myDrone.measureTemperature();
+                	myDrone.measureRGBC();
 
                 }
                 else if (droneEventObject.matches(DroneEventObject.droneEventType.TEMPERATURE_MEASURED)) {
@@ -130,6 +134,12 @@ public class ReadingsActivity extends Activity {
                     String temp1 = String.format("%.2f",myDrone.humidity_Percent);
                     temp1 = temp1 + " %";
                     updateTextViewFromUI((TextView)findViewById(R.id.main_tv_humidity), temp1);
+
+                    String temp2 = String.format("%.2f",myDrone.rgbcLux);
+                    temp2 = temp2 + " Lux";
+                    updateTextViewFromUI((TextView)findViewById(R.id.main_tv_luminosity), temp2);
+                    
+                    
                     // We will show a toast message to assure the user a measurement has been made.
                     uiToast("Values Refreshed!");
 

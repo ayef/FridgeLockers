@@ -15,6 +15,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.sensorcon.sensordrone.DroneEventHandler;
@@ -37,6 +38,7 @@ public class SensorDronePollingService extends Service {
     // Sensordrone Objects
     Drone myDrone;
     DroneEventHandler myDroneEventHandler;
+    public static FridgeLockerUserDBHelper db ;
 
 	// Check if service is running
     public static boolean isInstanceCreated() { 
@@ -57,6 +59,8 @@ public class SensorDronePollingService extends Service {
 		  super.onCreate();
 		  instance = this;
 		  globalString="";
+		  
+	  db = new FridgeLockerUserDBHelper(this);
 		  
         // Set up our Sensordrone object
         myDrone = new Drone();
@@ -184,8 +188,14 @@ public class SensorDronePollingService extends Service {
 			}
 		}
 		final Ringtone rtmp = r;
-		if(rtmp != null) 
+		if(rtmp != null) {
 			rtmp.play();
+			Log.d("Debug", "ringtone EXISTS");
+		}
+		else {
+			Log.d("Debug", "ringtone is null");
+		}
+		
 		long ringDelay = 3000;
 		TimerTask task = new TimerTask() {
 		    @Override
@@ -206,6 +216,10 @@ public class SensorDronePollingService extends Service {
 		getApplication().startActivity(dialogIntent);
 	}
 	
+	private void collectStats() {
+		//Code to access DB
+	}
+	
 	private boolean isViolation(float intValue) {
 		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
 		// Supposed to check
@@ -215,7 +229,7 @@ public class SensorDronePollingService extends Service {
 			return true;
 			
 		}
-		//violationsCounter = (violationsCounter + 1) % 2;
+		violationsCounter = (violationsCounter + 1) % 2;
 		return false;
 	}
 	
@@ -226,11 +240,14 @@ public class SensorDronePollingService extends Service {
 		boolean isFB = prefs.getBoolean(getString(R.string.pref_postFB), false);
 		boolean isCollectStats = prefs.getBoolean(getString(R.string.pref_collectStats), true);
 
-		//if(isRingAlarm)
-		//	ringAlarm();
+		if(isRingAlarm)
+			ringAlarm();
 
 		if(isTweet)
 			postTweet();
+
+		if(isCollectStats)
+			collectStats();
 	}
 	private void myStopService() {
 		if (timer != null) 
