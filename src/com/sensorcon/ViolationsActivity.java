@@ -52,7 +52,7 @@ public class ViolationsActivity extends Activity {
 	    }*/
         new postTweetTask().execute(null, null, null);
         SensorDronePollingService.db.addViolation("alice", "none");
-        SensorDronePollingService.db.addViolation("alice", "none");
+        SensorDronePollingService.db.addViolation("bob", "none");
     }
 
     protected void onPause() {

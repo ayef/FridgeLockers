@@ -1,10 +1,13 @@
 package com.sensorcon;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
@@ -60,6 +63,28 @@ public class FridgeLockerUserDBHelper extends SQLiteOpenHelper {
 		        // Inserting Row
 		        db.insert(UserEntry.TABLE_NAME, null, values);
 		        db.close(); // Closing database connection		    	
+		    }
+		    
+		    
+		    public List<String> getAllUsersInfo() {
+		        
+		    	List<String> userList = new ArrayList<String>();
+		        // Select All Query
+		        String selectQuery = "SELECT " + UserEntry.COLUMN_NAME_USERNAME + ", count(*) FROM " + UserEntry.TABLE_NAME + " GROUP BY " + UserEntry.COLUMN_NAME_USERNAME;
+		     
+		        SQLiteDatabase db = this.getWritableDatabase();
+		        Cursor cursor = db.rawQuery(selectQuery, null);
+		     
+		        // looping through all rows and adding to list
+		        if (cursor.moveToFirst()) {
+		            do {
+
+		                userList.add(cursor.getString(0) + ", " + cursor.getString(1));		// Adding user to list
+		            } while (cursor.moveToNext());
+		        }
+		     
+		        // return contact list
+		        return userList;
 		    }
 		    
 		    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
