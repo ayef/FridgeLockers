@@ -3,8 +3,17 @@ package com.sensorcon;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.IBinder;
 import android.widget.Toast;
 
@@ -16,6 +25,8 @@ public class SensorDronePollingService extends Service {
 	
 	int mStartMode;       // indicates how to behave if the service is killed
 	public static String globalString;
+	public static int violationsCounter = 0;
+	public static int currViolationState = 0;
 	public static SensorDronePollingService instance = null;
 	private static MainActivity MAIN_ACTIVITY;	// Reference to the main activity window
 	
@@ -50,6 +61,9 @@ public class SensorDronePollingService extends Service {
         // Set up our Sensordrone object
         myDrone = new Drone();
         myDrone.btConnect("00:17:E9:50:E1:75");
+        myDrone.enableTemperature();
+        myDrone.enableHumidity();
+
         myDroneEventHandler = new DroneEventHandler() {
             @Override
             public void parseEvent(DroneEventObject droneEventObject) {
@@ -103,6 +117,8 @@ public class SensorDronePollingService extends Service {
 
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // DroneEventHandler won't handle any notifications if it's not registered to a Sensordrone
+        myDrone.registerDroneListener(myDroneEventHandler);
         // The service is starting, due to a call to startService()
         return Service.START_STICKY;
     }
@@ -114,7 +130,7 @@ public class SensorDronePollingService extends Service {
 		super.onDestroy();
 		instance = null;
 		myStopService();
-		
+		myDrone.unregisterDroneListener(myDroneEventHandler);
 		if (MAIN_ACTIVITY != null) 
 			Toast.makeText(MAIN_ACTIVITY, "Sensordrone polling stopped", Toast.LENGTH_SHORT).show();
 				
@@ -129,7 +145,7 @@ public class SensorDronePollingService extends Service {
 						pollSensordrone();
 					}
 			      },
-			      0,
+			      2000,
 			      UPDATE_INTERVAL);
 	}
 	
@@ -138,14 +154,90 @@ public class SensorDronePollingService extends Service {
 		myDrone.measureTemperature();
 		String temp = String.format("%.2f \u00B0C",myDrone.temperature_Celsius);
 		globalString = globalString + temp + " ";
-		//if (MAIN_ACTIVITY != null) 
-		//	Toast.makeText(MAIN_ACTIVITY, "Temperature is " + temp, Toast.LENGTH_SHORT).show();
+		boolean isViolationResult = isViolation(myDrone.temperature_Celsius);
+		if(currViolationState == 0 && isViolationResult) {
+			currViolationState = 1;
+			//ringAlarm();
+			applyViolationHandling();			
+		}
+		else if(currViolationState == 1 && isViolationResult) {
+			// Do nothing
+		}
+		else if(currViolationState == 1 && !isViolationResult) {
+			currViolationState = 0;
+		}
+		
 		
 	}
+	
+	private void ringAlarm() {
+		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+		Ringtone r = RingtoneManager.getRingtone(getBaseContext(), alert);
 
+		if(r == null){
+			alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			r = RingtoneManager.getRingtone(getBaseContext(), alert);
+
+			if(r == null){  
+				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+				r = RingtoneManager.getRingtone(getBaseContext(), alert);               
+			}
+		}
+		final Ringtone rtmp = r;
+		if(rtmp != null) 
+			rtmp.play();
+		long ringDelay = 3000;
+		TimerTask task = new TimerTask() {
+		    @Override
+		    public void run() {
+		        rtmp.stop();
+		    }
+		};
+	
+		Timer timer = new Timer();
+		timer.schedule(task, ringDelay);	
+	
+	}
+	
+	private void postTweet() {
+		//Code to launch an activity
+		Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
+		dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		getApplication().startActivity(dialogIntent);
+	}
+	
+	private boolean isViolation(float intValue) {
+		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
+		// Supposed to check
+		
+		if(intValue > 0 && (violationsCounter % 2 == 0)){
+			violationsCounter = (violationsCounter + 1) % 2;
+			return true;
+			
+		}
+		//violationsCounter = (violationsCounter + 1) % 2;
+		return false;
+	}
+	
+	private void applyViolationHandling() {
+		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
+		boolean isRingAlarm = prefs.getBoolean("pref_alarm", true);
+		boolean isTweet = prefs.getBoolean(getString(R.string.pref_tweet), true);
+		boolean isFB = prefs.getBoolean(getString(R.string.pref_postFB), false);
+		boolean isCollectStats = prefs.getBoolean(getString(R.string.pref_collectStats), true);
+
+		//if(isRingAlarm)
+		//	ringAlarm();
+
+		if(isTweet)
+			postTweet();
+	}
 	private void myStopService() {
 		if (timer != null) 
 			timer.cancel();
+		
+		currViolationState = 0;
+		violationsCounter = 0;
 	}
 	
 }

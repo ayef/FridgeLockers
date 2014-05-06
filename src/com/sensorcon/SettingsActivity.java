@@ -1,6 +1,8 @@
 package com.sensorcon;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 public class SettingsActivity extends Activity {
@@ -26,6 +28,11 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        SharedPreferences sharedPref = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(getString(R.string.pref_alarm), sharedPref.getBoolean("pref_alarm", true));
+        editor.commit();  
+        
     }
 
  }
