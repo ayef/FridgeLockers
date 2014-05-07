@@ -10,5 +10,15 @@
             android:text="This is the statistics page"
             android:id="@+id/main_tv_label" android:layout_centerHorizontal="true" android:layout_alignParentTop="true"/>
 
+    <TextView
+        android:id="@+id/main_tv_DBdata"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_tv_label"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="52dp"
+        android:inputType="textMultiLine"
+        android:text="" />
+
 </RelativeLayout>
 

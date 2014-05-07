@@ -15,6 +15,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.sensorcon.sensordrone.DroneEventHandler;
@@ -32,11 +33,12 @@ public class SensorDronePollingService extends Service {
 	
 	// Variables for polling
 	private Timer timer = new Timer();
-	private static final long UPDATE_INTERVAL = 8000;
+	private static final long UPDATE_INTERVAL = 5000;
 	
     // Sensordrone Objects
     Drone myDrone;
     DroneEventHandler myDroneEventHandler;
+    public static FridgeLockerUserDBHelper db ;
 
 	// Check if service is running
     public static boolean isInstanceCreated() { 
@@ -57,6 +59,8 @@ public class SensorDronePollingService extends Service {
 		  super.onCreate();
 		  instance = this;
 		  globalString="";
+		  
+	  db = new FridgeLockerUserDBHelper(this);
 		  
         // Set up our Sensordrone object
         myDrone = new Drone();
@@ -184,9 +188,15 @@ public class SensorDronePollingService extends Service {
 			}
 		}
 		final Ringtone rtmp = r;
-		if(rtmp != null) 
+		if(rtmp != null) {
 			rtmp.play();
-		long ringDelay = 5000;
+			Log.d("Debug", "ringtone EXISTS");
+		}
+		else {
+			Log.d("Debug", "ringtone is null");
+		}
+		
+		long ringDelay = 3000;
 		TimerTask task = new TimerTask() {
 		    @Override
 		    public void run() {
@@ -204,6 +214,10 @@ public class SensorDronePollingService extends Service {
 		Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
 		dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		getApplication().startActivity(dialogIntent);
+	}
+	
+	private void collectStats() {
+		//Code to access DB
 	}
 	
 	private boolean isViolation(float intValue) {
@@ -231,6 +245,9 @@ public class SensorDronePollingService extends Service {
 
 		if(isTweet)
 			postTweet();
+
+		if(isCollectStats)
+			collectStats();
 	}
 	private void myStopService() {
 		if (timer != null) 

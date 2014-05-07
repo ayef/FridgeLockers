@@ -54,4 +54,22 @@
         android:layout_marginBottom="16dp"
         android:text="Humidity" />
 
+    <TextView
+        android:id="@+id/main_tv_luminosity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_tv_humidity"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="55dp"
+        android:text="load luminosity here" />
+
+    <TextView
+        android:id="@+id/main_luminosity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/main_tv_luminosity"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:text="Luminosity" />
+
 </RelativeLayout>
