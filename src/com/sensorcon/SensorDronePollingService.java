@@ -32,7 +32,7 @@ public class SensorDronePollingService extends Service {
 	
 	// Variables for polling
 	private Timer timer = new Timer();
-	private static final long UPDATE_INTERVAL = 5000;
+	private static final long UPDATE_INTERVAL = 8000;
 	
     // Sensordrone Objects
     Drone myDrone;
@@ -186,7 +186,7 @@ public class SensorDronePollingService extends Service {
 		final Ringtone rtmp = r;
 		if(rtmp != null) 
 			rtmp.play();
-		long ringDelay = 3000;
+		long ringDelay = 5000;
 		TimerTask task = new TimerTask() {
 		    @Override
 		    public void run() {
@@ -215,7 +215,7 @@ public class SensorDronePollingService extends Service {
 			return true;
 			
 		}
-		//violationsCounter = (violationsCounter + 1) % 2;
+		violationsCounter = (violationsCounter + 1) % 2;
 		return false;
 	}
 	
@@ -226,8 +226,8 @@ public class SensorDronePollingService extends Service {
 		boolean isFB = prefs.getBoolean(getString(R.string.pref_postFB), false);
 		boolean isCollectStats = prefs.getBoolean(getString(R.string.pref_collectStats), true);
 
-		//if(isRingAlarm)
-		//	ringAlarm();
+		if(isRingAlarm)
+			ringAlarm();
 
 		if(isTweet)
 			postTweet();
