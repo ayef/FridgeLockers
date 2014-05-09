@@ -70,7 +70,7 @@ public class FridgeLockerUserDBHelper extends SQLiteOpenHelper {
 		        
 		    	List<String> userList = new ArrayList<String>();
 		        // Select All Query
-		        String selectQuery = "SELECT " + UserEntry.COLUMN_NAME_USERNAME + ", count(*) FROM " + UserEntry.TABLE_NAME + " GROUP BY " + UserEntry.COLUMN_NAME_USERNAME;
+		        String selectQuery = "SELECT " + UserEntry.COLUMN_NAME_USERNAME + ", " + UserEntry.COLUMN_NAME_DATE + ", count(*) FROM " + UserEntry.TABLE_NAME + " GROUP BY " + UserEntry.COLUMN_NAME_USERNAME;
 		     
 		        SQLiteDatabase db = this.getWritableDatabase();
 		        Cursor cursor = db.rawQuery(selectQuery, null);
@@ -79,7 +79,7 @@ public class FridgeLockerUserDBHelper extends SQLiteOpenHelper {
 		        if (cursor.moveToFirst()) {
 		            do {
 
-		                userList.add(cursor.getString(0) + ", " + cursor.getString(1));		// Adding user to list
+		                userList.add(cursor.getString(0) + " | " + cursor.getString(1) + " | " + cursor.getString(2));		// Adding user to list
 		            } while (cursor.moveToNext());
 		        }
 		     

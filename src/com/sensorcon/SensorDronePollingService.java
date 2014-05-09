@@ -211,9 +211,9 @@ public class SensorDronePollingService extends Service {
 	
 	private void postTweet() {
 		//Code to launch an activity
-		Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
-		dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		getApplication().startActivity(dialogIntent);
+		//Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
+		//dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		//getApplication().startActivity(dialogIntent);
 	}
 	
 	private void collectStats() {
