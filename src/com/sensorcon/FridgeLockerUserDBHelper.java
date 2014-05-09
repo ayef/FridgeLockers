@@ -26,8 +26,6 @@ public class FridgeLockerUserDBHelper extends SQLiteOpenHelper {
     	private static final String SQL_DELETE_ENTRIES =
         	    "DROP TABLE IF EXISTS " + UserEntry.TABLE_NAME;
 
-    	FridgeLockerUserDBHelper mDbHelper;
-    	
     	/* Inner class that defines the table contents */
 	    public static abstract class UserEntry implements BaseColumns {
 	        public static final String TABLE_NAME = "ViolationsTable";
@@ -43,6 +41,7 @@ public class FridgeLockerUserDBHelper extends SQLiteOpenHelper {
 
 		    public FridgeLockerUserDBHelper (Context context) {
 		        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		        
 		    }
 		    public void onCreate(SQLiteDatabase db) {
 		        db.execSQL(SQL_CREATE_ENTRIES);
@@ -70,7 +69,7 @@ public class FridgeLockerUserDBHelper extends SQLiteOpenHelper {
 		        
 		    	List<String> userList = new ArrayList<String>();
 		        // Select All Query
-		        String selectQuery = "SELECT " + UserEntry.COLUMN_NAME_USERNAME + ", " + UserEntry.COLUMN_NAME_DATE + ", count(*) FROM " + UserEntry.TABLE_NAME + " GROUP BY " + UserEntry.COLUMN_NAME_USERNAME;
+		        String selectQuery = "SELECT " + UserEntry.COLUMN_NAME_USERNAME + ", " + UserEntry.COLUMN_NAME_DATE + ", count(*) FROM " + UserEntry.TABLE_NAME + " GROUP BY " + UserEntry.COLUMN_NAME_USERNAME + ", " + UserEntry.COLUMN_NAME_DATE;
 		     
 		        SQLiteDatabase db = this.getWritableDatabase();
 		        Cursor cursor = db.rawQuery(selectQuery, null);

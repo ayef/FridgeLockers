@@ -28,6 +28,9 @@ public class MainActivity extends Activity {
     // Sensordrone Objects
     Drone myDrone;
     DroneEventHandler myDroneEventHandler;
+
+    // Database reference
+    public static FridgeLockerUserDBHelper db ;
     
     /** Called when the user clicks the Settings button
      * Opens the Settings Activity */
@@ -57,14 +60,14 @@ public class MainActivity extends Activity {
     public void startService() {
     	toggleService = 1;
     	SensorDronePollingService.setMainActivity(this);
-       startService(new Intent(getBaseContext(), SensorDronePollingService.class));
+    	startService(new Intent(getBaseContext(), SensorDronePollingService.class));
     }
 
     // Method to stop the service
     public void stopService() {
     	toggleService = 0;
-    	uiToast(SensorDronePollingService.globalString);
-       stopService(new Intent(getBaseContext(), SensorDronePollingService.class));
+    	uiToast(SensorDronePollingService.globalString);	// Just show the values that have been read on the sensordrone
+    	stopService(new Intent(getBaseContext(), SensorDronePollingService.class));
     }
 
     // Starts or stops the service
@@ -86,7 +89,8 @@ public class MainActivity extends Activity {
         myDrone.btConnect("00:17:EC:11:C0:0F");
         
     
-
+        db = new FridgeLockerUserDBHelper(this);
+        
         // We have set up a simple layout named main.xml
         // There are three Buttons, and two TextViews that we will interact with
 

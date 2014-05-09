@@ -29,10 +29,10 @@ public class SensorDronePollingService extends Service {
 	
 	int mStartMode;       // indicates how to behave if the service is killed
 	public static String globalString;
-	public static int violationsCounter = 0;	// Not used anymore - was used to simulate violations
-	public static int currViolationState = 0;	// State variable to check whether a violation is ongoing
-	public static SensorDronePollingService instance = null;	// Used by MainActivity to check whether the service is running
-	private static MainActivity MAIN_ACTIVITY;					// Reference to the main activity window
+	public static int violationsCounter = 0;
+	public static int currViolationState = 0;
+	public static SensorDronePollingService instance = null;
+	private static MainActivity MAIN_ACTIVITY;	// Reference to the main activity window
 	
 	// Variables for polling
 	private Timer timer = new Timer();
@@ -45,12 +45,12 @@ public class SensorDronePollingService extends Service {
     // Random number generator for simulating luminance values from sensordrone
     Random r;
     
+
 	// Check if service is running
     public static boolean isInstanceCreated() { 
 	      return instance != null; 
 	}
-
-    @Override
+	@Override
 	public IBinder onBind(Intent arg0) {
 		// Not using IPC so return NULL
 		return null;
@@ -62,14 +62,13 @@ public class SensorDronePollingService extends Service {
 
 	@Override 
 	public void onCreate() {
-		super.onCreate();
-
-		// Initialize service variables
-		instance = this;
-		globalString="";
-		r = new Random();
-
-		// Fetch a value from the preferences
+		  super.onCreate();
+		  instance = this;
+		  globalString="";
+		  
+	  //db = new FridgeLockerUserDBHelper(this);
+		  r = new Random();
+		  
 		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
 		UPDATE_INTERVAL = prefs.getInt(getString(R.string.pref_snsrdrnPollInterval), R.string.pref_snsrdrnPollInterval_default);
 		UPDATE_INTERVAL = UPDATE_INTERVAL *1000;	// Convert to milliseconds
@@ -79,21 +78,42 @@ public class SensorDronePollingService extends Service {
         myDrone.btConnect("00:17:E9:50:E1:75");
         myDrone.enableTemperature();
         myDrone.enableHumidity();
-        myDrone.enableRGBC();
 
         myDroneEventHandler = new DroneEventHandler() {
             @Override
             public void parseEvent(DroneEventObject droneEventObject) {
                 if (droneEventObject.matches(DroneEventObject.droneEventType.CONNECTED)) {
+                    // This is triggered when a connection is made.
+                    // Set the LEDs blue
                     myDrone.setLEDs(0,0,126);
+                    //updateTextViewFromUI(tvStatus, "Connected");
 
                     myDrone.enableTemperature();
                 }
+                else if (droneEventObject.matches(DroneEventObject.droneEventType.DISCONNECTED)) {
+                    // This is triggered when the disconnect method is called.
+                    //updateTextViewFromUI(tvStatus, "Not connected");
+                }
+                else if (droneEventObject.matches(DroneEventObject.droneEventType.CONNECTION_LOST)) {
+                    // This is triggered when a connection is lost.
+                    //updateTextViewFromUI(tvStatus, "Connection lost!");
+                    //uiToast("Connection lost!");
+                }
                 else if (droneEventObject.matches(DroneEventObject.droneEventType.TEMPERATURE_ENABLED)) {
+                    // This is triggered when the temperature has been enabled
+
+                    // Let's go ahead and take a reading for the user!
                     myDrone.measureTemperature();
                 }
                 else if (droneEventObject.matches(DroneEventObject.droneEventType.TEMPERATURE_MEASURED)) {
+                    // This gets fired when the temperature is measured
+
                     String temp = String.format("%.2f \u00B0C",myDrone.temperature_Celsius);
+                    //updateTextViewFromUI(tvTemperature, temp);
+
+                    // We will show a toast message to assure the user a measurement has been made.
+                    //uiToast("Temperature updated!");
+
                 }
                 else if (droneEventObject.matches(DroneEventObject.droneEventType.TEMPERATURE_DISABLED)) {
                     // We disable the sensor right before we disconnect, so there's nothing
@@ -103,10 +123,11 @@ public class SensorDronePollingService extends Service {
             }
         };
 
-        myStartService();	// Start the background polling service
+		  // init the service here
+		  myStartService();
 
-        if (MAIN_ACTIVITY != null) 
-        	Toast.makeText(MAIN_ACTIVITY, "Sensordrone polling started", Toast.LENGTH_SHORT).show();
+		  if (MAIN_ACTIVITY != null) 
+			  Toast.makeText(MAIN_ACTIVITY, "Sensordrone polling started", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -131,9 +152,8 @@ public class SensorDronePollingService extends Service {
 	
 	
 	private void myStartService() {
-
-		timer.scheduleAtFixedRate(
-				new TimerTask() {
+		timer.scheduleAtFixedRate( 
+			      new TimerTask() {
 					public void run() {
 						// Poll sensordrone at regular intervals
 						pollSensordrone();
@@ -146,19 +166,19 @@ public class SensorDronePollingService extends Service {
 
 	// Polling sensordrone at intervals
 	private void pollSensordrone(){
+		myDrone.measureTemperature();
 		myDrone.measureRGBC();
 
-		float temp =  myDrone.rgbcLux;			// The true luminance value, but we use a random value for simulating changes.
-		float fakeLumValue = r.nextFloat();
-		globalString = globalString + fakeLumValue + " ";
+		float temp =  myDrone.rgbcLux;			// The true luminance value, byut we use a random value for simulating changes. 
+		globalString = globalString + temp + " ";
 
-		boolean isViolationResult = isViolation(fakeLumValue);	// Send a random value between [0, 1.0)
+		boolean isViolationResult = isViolation(r.nextFloat());	// Send a random value between [0, 1.0)
 
 		if(currViolationState == 0 && isViolationResult) {		// Violation started, enter violation state
 			currViolationState = 1;
 			applyViolationHandling();			
 		}
-		else if(currViolationState == 1 && !isViolationResult) {	// Violation ended, turn off violation state
+		else if(currViolationState == 1 && !isViolationResult) {	// Violation ended, so turn off violation state
 			currViolationState = 0;	
 		}
 		
@@ -203,22 +223,22 @@ public class SensorDronePollingService extends Service {
 	
 	// Post tweet on maazahmad account using asynchronous task
 	private void postTweet() {
-		
-		// Perform the tweet post asynchronously
+		//Code to launch an activity
+<<<<<<< HEAD
+		//Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
+		//dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		//getApplication().startActivity(dialogIntent);
+=======
 		new postTweetTask().execute(null, null, null);
-		
-		// Show a view declaring that the tweet has been sent --- This is not necessary _
-		// the user will see it on their twitter account, and displaying this view messes up the flow of the app because _
-		// when multiple violations occur, the user will have to close these views
 		Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
 		dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		getApplication().startActivity(dialogIntent);
+>>>>>>> 312689106a3cef30b0cc9abf752a58640bfb59ab
 	}
 	
 	// Store values for user in DB using Asynchronous task. Values stored for both alice and bob so we can see some statistics.
 	private void collectStats() {
-		// Store in DB asynchronously
-		new storeViolationInDBTask().execute(null, null, null);
+		//Code to access DB
 	}
 	
 	// Check if this is a violation -  banned times should be retrieved from SharedPreferences
@@ -227,12 +247,19 @@ public class SensorDronePollingService extends Service {
 		int banStart = prefs.getInt(getString(R.string.pref_bannedTimeStart), R.string.pref_bannedTimeStart_default);
 		int banEnd = prefs.getInt(getString(R.string.pref_bannedTimeEnd), R.string.pref_bannedTimeEnd_default);
 		
+		/*// Toggling violations on and off to generate violations for simulation
+		 *  if(fValue > 0.2 && (violationsCounter % 2 == 0)){
+		 *  violationsCounter = (violationsCounter + 1) % 2;
+			return true;
+		}
+		violationsCounter = (violationsCounter + 1) % 2;
+		*/
+
 		Calendar c = Calendar.getInstance();
 		int hour_of_day = c.get(Calendar.HOUR_OF_DAY);
 
-		// TODO: Should be checking banned times here like : (hour_of_day >= banStart && hour_of_day <= banEnd) _
-		// But it makes testing difficult so add this later
-		if(fValue > 0.2 ) {		// Since this is receiving a random value between [0, 1.0), the violation will be triggered 80% of the time
+		// TODO: Should be checking banned times here like : (hour_of_day >= banStart && hour_of_day <= banEnd) But it makes testing difficult so later
+		if(fValue > 0.2 )  {		// Since this is receiving a random value between [0, 1.0), the violation will be triggered 80% of the time
 			return true;
 		}
 		else {
@@ -243,7 +270,7 @@ public class SensorDronePollingService extends Service {
 	
 	private void applyViolationHandling() {
 		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
-		boolean isRingAlarm = prefs.getBoolean(getString(R.string.pref_alarm), true);
+		boolean isRingAlarm = prefs.getBoolean("pref_alarm", true);
 		boolean isTweet = prefs.getBoolean(getString(R.string.pref_tweet), true);
 		boolean isFB = prefs.getBoolean(getString(R.string.pref_postFB), false);
 		boolean isCollectStats = prefs.getBoolean(getString(R.string.pref_collectStats), true);
@@ -257,7 +284,6 @@ public class SensorDronePollingService extends Service {
 		if(isCollectStats)
 			collectStats();
 	}
-
 	private void myStopService() {
 		if (timer != null) 
 			timer.cancel();
@@ -268,6 +294,16 @@ public class SensorDronePollingService extends Service {
 
 	// Class for handling tweeting asynchronously
     private class postTweetTask extends AsyncTask<Void, Void, Void> {
+
+
+        protected void onProgressUpdate(Integer... progress) {
+            //setProgressPercent(progress[0]);
+        }
+
+        protected void onPostExecute(Long result) {
+            //showDialog("Downloaded " + result + " bytes");
+        }
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			Log.d("DEBUG", "InDoBackground");
@@ -284,24 +320,10 @@ public class SensorDronePollingService extends Service {
 		    	twitter.updateStatus("MM Test tweet #" + r.nextInt());
 		    	
 		    } catch (TwitterException e) {
+		        // TODO Auto-generated catch block
 		        e.printStackTrace();
 		    }
 			return null;
-		}
-    }
-
-    // Class for handling DB update asynchronously
-    private class storeViolationInDBTask extends AsyncTask<Void, Void, Void> {
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			// Store one violation for alice, store two for bob (bob simulates another user using FridgeLocker whose data _ 
-			// would also be on the cloud). The users can be used later to show on aggregated statistics on the 'Statistics' page
-			MainActivity.db.addViolation("alice", "");
-	        
-			MainActivity.db.addViolation("bob", "");
-	        MainActivity.db.addViolation("bob", "");
-
-	        return null;
 		}
     }
     

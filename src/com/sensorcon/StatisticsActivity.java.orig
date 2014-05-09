@@ -21,7 +21,11 @@ public class StatisticsActivity extends Activity {
         for (String str : badUsers) {
             String log = str;
             Log.d("DEBUG", log);
-            updateTextViewFromUI(tv, tv.getText() + log + " \n" );
+<<<<<<< HEAD
+            updateTextViewFromUI(tv, log + " \n" + tv.getText() );
+=======
+            updateTextViewFromUI(tv, log + " \n" + tv.getText());
+>>>>>>> 312689106a3cef30b0cc9abf752a58640bfb59ab
         }
 
 	}
