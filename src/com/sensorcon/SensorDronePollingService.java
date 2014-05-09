@@ -1,5 +1,7 @@
 package com.sensorcon;
 
+import java.util.Calendar;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,6 +16,7 @@ import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -33,12 +36,15 @@ public class SensorDronePollingService extends Service {
 	
 	// Variables for polling
 	private Timer timer = new Timer();
-	private static final long UPDATE_INTERVAL = 5000;
+	private static long UPDATE_INTERVAL = 5000;
 	
     // Sensordrone Objects
     Drone myDrone;
     DroneEventHandler myDroneEventHandler;
-    public static FridgeLockerUserDBHelper db ;
+    
+    // Random number generator for simulating luminance values from sensordrone
+    Random r;
+    
 
 	// Check if service is running
     public static boolean isInstanceCreated() { 
@@ -60,8 +66,13 @@ public class SensorDronePollingService extends Service {
 		  instance = this;
 		  globalString="";
 		  
-	  db = new FridgeLockerUserDBHelper(this);
+	  //db = new FridgeLockerUserDBHelper(this);
+		  r = new Random();
 		  
+		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
+		UPDATE_INTERVAL = prefs.getInt(getString(R.string.pref_snsrdrnPollInterval), R.string.pref_snsrdrnPollInterval_default);
+		UPDATE_INTERVAL = UPDATE_INTERVAL *1000;	// Convert to milliseconds
+		
         // Set up our Sensordrone object
         myDrone = new Drone();
         myDrone.btConnect("00:17:E9:50:E1:75");
@@ -121,9 +132,7 @@ public class SensorDronePollingService extends Service {
 
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // DroneEventHandler won't handle any notifications if it's not registered to a Sensordrone
         myDrone.registerDroneListener(myDroneEventHandler);
-        // The service is starting, due to a call to startService()
         return Service.START_STICKY;
     }
 	
@@ -135,6 +144,7 @@ public class SensorDronePollingService extends Service {
 		instance = null;
 		myStopService();
 		myDrone.unregisterDroneListener(myDroneEventHandler);
+
 		if (MAIN_ACTIVITY != null) 
 			Toast.makeText(MAIN_ACTIVITY, "Sensordrone polling stopped", Toast.LENGTH_SHORT).show();
 				
@@ -153,27 +163,29 @@ public class SensorDronePollingService extends Service {
 			      UPDATE_INTERVAL);
 	}
 	
-	
+
+	// Polling sensordrone at intervals
 	private void pollSensordrone(){
 		myDrone.measureTemperature();
-		String temp = String.format("%.2f \u00B0C",myDrone.temperature_Celsius);
+		myDrone.measureRGBC();
+
+		float temp =  myDrone.rgbcLux;			// The true luminance value, byut we use a random value for simulating changes. 
 		globalString = globalString + temp + " ";
-		boolean isViolationResult = isViolation(myDrone.temperature_Celsius);
-		if(currViolationState == 0 && isViolationResult) {
+
+		boolean isViolationResult = isViolation(r.nextFloat());	// Send a random value between [0, 1.0)
+
+		if(currViolationState == 0 && isViolationResult) {		// Violation started, enter violation state
 			currViolationState = 1;
-			//ringAlarm();
 			applyViolationHandling();			
 		}
-		else if(currViolationState == 1 && isViolationResult) {
-			// Do nothing
-		}
-		else if(currViolationState == 1 && !isViolationResult) {
-			currViolationState = 0;
+		else if(currViolationState == 1 && !isViolationResult) {	// Violation ended, so turn off violation state
+			currViolationState = 0;	
 		}
 		
 		
 	}
 	
+	// Ring alarm for 3 seconds
 	private void ringAlarm() {
 		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 		Ringtone r = RingtoneManager.getRingtone(getBaseContext(), alert);
@@ -209,28 +221,45 @@ public class SensorDronePollingService extends Service {
 	
 	}
 	
+	// Post tweet on maazahmad account using asynchronous task
 	private void postTweet() {
 		//Code to launch an activity
+		new postTweetTask().execute(null, null, null);
 		Intent dialogIntent = new Intent(getBaseContext(), ViolationsActivity.class);
 		dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		getApplication().startActivity(dialogIntent);
 	}
 	
+	// Store values for user in DB using Asynchronous task. Values stored for both alice and bob so we can see some statistics.
 	private void collectStats() {
 		//Code to access DB
 	}
 	
-	private boolean isViolation(float intValue) {
+	// Check if this is a violation -  banned times should be retrieved from SharedPreferences
+	private boolean isViolation(float fValue) {
 		SharedPreferences prefs = this.getSharedPreferences("preferences", Context.MODE_PRIVATE);
-		// Supposed to check
+		int banStart = prefs.getInt(getString(R.string.pref_bannedTimeStart), R.string.pref_bannedTimeStart_default);
+		int banEnd = prefs.getInt(getString(R.string.pref_bannedTimeEnd), R.string.pref_bannedTimeEnd_default);
 		
-		if(intValue > 0 && (violationsCounter % 2 == 0)){
-			violationsCounter = (violationsCounter + 1) % 2;
+		/*// Toggling violations on and off to generate violations for simulation
+		 *  if(fValue > 0.2 && (violationsCounter % 2 == 0)){
+		 *  violationsCounter = (violationsCounter + 1) % 2;
 			return true;
-			
 		}
 		violationsCounter = (violationsCounter + 1) % 2;
-		return false;
+		*/
+
+		Calendar c = Calendar.getInstance();
+		int hour_of_day = c.get(Calendar.HOUR_OF_DAY);
+
+		// TODO: Should be checking banned times here like : (hour_of_day >= banStart && hour_of_day <= banEnd) But it makes testing difficult so later
+		if(fValue > 0.2 )  {		// Since this is receiving a random value between [0, 1.0), the violation will be triggered 80% of the time
+			return true;
+		}
+		else {
+			return false;	
+		}
+
 	}
 	
 	private void applyViolationHandling() {
@@ -256,5 +285,40 @@ public class SensorDronePollingService extends Service {
 		currViolationState = 0;
 		violationsCounter = 0;
 	}
-	
+
+	// Class for handling tweeting asynchronously
+    private class postTweetTask extends AsyncTask<Void, Void, Void> {
+
+
+        protected void onProgressUpdate(Integer... progress) {
+            //setProgressPercent(progress[0]);
+        }
+
+        protected void onPostExecute(Long result) {
+            //showDialog("Downloaded " + result + " bytes");
+        }
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			Log.d("DEBUG", "InDoBackground");
+			String token ="SrCEqEg2BxAbNWXdokByKVF5j"; 
+		    String secret = "hajRpzIgBaXW5xLV1sdIK9m7kTk69Zl4y0y6KMjwVWi9X0V2t1";
+		    String access_token="47413503-Uf7OwfX1TGBsv2IUuiLa6m3NpfJYwFifTOLre7z7P";
+		    String access_secret="XMAgGXddUZyN7M1OgTXyRaJGtZdYXaGxCV8Esv0amjqz8";
+		    AccessToken a = new AccessToken(access_token,access_secret);
+		    Twitter twitter = new TwitterFactory().getInstance();
+		    twitter.setOAuthConsumer("SrCEqEg2BxAbNWXdokByKVF5j", "hajRpzIgBaXW5xLV1sdIK9m7kTk69Zl4y0y6KMjwVWi9X0V2t1");
+		    twitter.setOAuthAccessToken(a);
+		    try {
+		    	Random r = new Random();
+		    	twitter.updateStatus("MM Test tweet #" + r.nextInt());
+		    	
+		    } catch (TwitterException e) {
+		        // TODO Auto-generated catch block
+		        e.printStackTrace();
+		    }
+			return null;
+		}
+    }
+    
 }

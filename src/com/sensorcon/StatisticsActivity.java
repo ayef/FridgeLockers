@@ -13,12 +13,15 @@ public class StatisticsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.statistics);
 
-        List<String> badUsers = SensorDronePollingService.db.getAllUsersInfo();      
+        List<String> badUsers = MainActivity.db.getAllUsersInfo();      
         TextView tv = (TextView)findViewById(R.id.main_tv_DBdata);
+
+        updateTextViewFromUI(tv, "user | date | violations \n");
+        
         for (String str : badUsers) {
             String log = str;
             Log.d("DEBUG", log);
-            updateTextViewFromUI(tv, log + tv.getText() + "\n");
+            updateTextViewFromUI(tv, log + " \n" + tv.getText());
         }
 
 	}
