@@ -1,5 +1,5 @@
 FridgeLocker – The App
 -----------------------------------
-The FridgeLocker App is an activity monitoring app developed for Android mobile phones with the Sensordrone. The target audience for this app are people who want to lose weight by limiting their food intake. Some people find it very hard to motivate themselves to limit their diet. During the day time, family members, friends and other activities can motivate them to stick to their routine but there are many cases where such a person is caught eating during the night hours when everybody is asleep. To counter such a situation, the FridgeLocker app has been created using a Sensordrone device which is placed inside the refrigerator. The FridgeLocker app is polling the Sensordrone and will detect that the refrigerator has been opened by the user. The App will then take several actions based on the user’s settings. The list of implemented features is shown in the table below:
+The FridgeLocker App is an activity monitoring app to help dieters stick to their diets. Developed for Android mobile phones in conjunction with a Sensordrone device. Tools used: Java, Android development, Sensordrone SDK.
 
 Please see the report "Mobile-Middleware_FridgeLocker_Final-Report.pdf" to see details about how the app works
